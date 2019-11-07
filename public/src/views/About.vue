@@ -1,14 +1,8 @@
 <template>
   <div class="about">
-    <p>Ticks left {{ user.ticksLeft }}</p>
 
-    <p>You are currently {{ user.currentTask }}</p>
 
-    <div id="tick-progress">
-      <div class="progress" :style="{width: tickProgress + '%'}"></div>
-    </div>
-
-    <button v-on:click="updateTask('mine')">Mine</button>
+    <button v-on:click="updateTask('mining')">Mine</button>
     <button v-on:click="updateTask('woodcutting')">Woodcutting</button>
 
     <p v-if="user.currentTask !== null"><button v-on:click="stopTask">Stop Task</button></p>
@@ -49,41 +43,7 @@
 </style>
 <script>
   export default {
-    name: 'About',
-    data: function() {
-      return {
-        currentProgress: 0,
-        user: {},
-        tickProgress: 100,
-      }
-    },
-    mounted: function() {
-      window.$socket.on('tick update', (tick) => {
-        this.user.ticksLeft = tick;
-        console.log('update tick', tick);
-        this.tickProgress = 100;
-      });
-
-      window.$socket.on('login', (u) => {
-        this.$set(this, 'user', u)
-        console.log('login', u)
-      })
-
-      window.$socket.on('update user', (u) => {
-        this.$set(this, 'user', u);
-        console.log('update user', u)
-      });
-
-      window.$socket.on('sync tick animation', () => {
-        this.tickProgress = 100;
-      })
-
-      let _self = this;
-
-      setInterval(function() {
-        _self.tickProgress--;
-      }, 50);
-    },
+    name: 'Gathering',
     methods: {
       updateTask: function(task) {
         console.log('change task');
