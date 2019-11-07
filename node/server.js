@@ -28,6 +28,10 @@ io.on('connection', (socket) => {
 
     EventEmitter.on('update tick', (tick) => {
         io.to('private user ' + username).emit('update tick', tick);
+    });
+
+    EventEmitter.on('sync tick', () => {
+        io.to('private user ' + username).emit('sync tick animation')
     })
 
     let tick = new TickHandler(socket, EventEmitter);

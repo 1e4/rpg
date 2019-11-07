@@ -35,17 +35,22 @@ class TickHandler {
     }
 
     startTick() {
-        this.ticker = setInterval(this.handleTick, 1000, this);
+        if(this.user.ticksLeft <= 0)
+            this.stop();
+
+        this.ticker = setInterval(this.handleTick, 5000, this);
     }
 
     stop() {
-        clearInterval(this.ticker)
+        clearInterval(this.ticker);
+        this.user.currentTask = null;
+        this.EventEmitter.emit('update user', this.user)
     }
 
     handleTick(_self) {
         // console.log('Running tick for users', users);
 
-        if (!_self.user || _self.user.currentTask === null || _self.task === null) return;
+        if (!_self.user || _self.user.currentTask === null || _self.task === null || _self.user.ticksLeft <= 0) return;
 
         _self.user.ticksLeft--;
 
@@ -54,6 +59,7 @@ class TickHandler {
         _self.task.handle();
 
         _self.EventEmitter.emit('update user', _self.user);
+        _self.EventEmitter.emit('sync tick')
     }
 }
 
