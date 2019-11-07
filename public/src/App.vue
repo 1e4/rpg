@@ -12,7 +12,7 @@
     <p>Ticks left {{ user.ticksLeft }}</p>
 
     <p>You are currently {{ user.currentTask }}</p>
-    
+
     <router-view/>
   </div>
 </template>

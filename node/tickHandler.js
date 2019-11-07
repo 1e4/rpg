@@ -23,6 +23,7 @@ class TickHandler {
         this.user.currentTask = task;
         this.user.ticksLeft = 300;
         this.EventEmitter.emit('update user', this.user);
+        this.EventEmitter.emit('sync tick');
 
         let taskFilePath = './taskHandlers/' + task + '.js';
 

@@ -5,11 +5,7 @@
     <button v-on:click="updateTask('mining')">Mine</button>
     <button v-on:click="updateTask('woodcutting')">Woodcutting</button>
 
-    <p v-if="user.currentTask !== null"><button v-on:click="stopTask">Stop Task</button></p>
-
-    <pre>
-      {{ user }}
-    </pre>
+    <p v-if="this.$parent.$data.user.currentTask !== null"><button v-on:click="stopTask">Stop Task</button></p>
   </div>
 </template>
 <style lang="scss">
