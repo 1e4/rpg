@@ -7,14 +7,14 @@ import io from 'socket.io-client';
 Vue.config.productionTip = false;
 
 function login() {
-  let username = window.prompt("What is your username?", "Ian");
+  // let username = window.prompt("What is your username?", "Ian");
 
   window.$socket.emit('login', {
-    username: username
+    username: 'Ian'
   })
 }
 
-window.$socket = io('127.0.0.1:3000');
+window.$socket = io('127.0.0.1:3005');
 
 window.$socket.on('connect', login);
 
