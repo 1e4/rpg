@@ -1,15 +1,5 @@
 <template>
     <div id="app">
-        <div id="nav">
-            <router-link to="/about">About</router-link>
-        </div>
-
-        <progress-bar message="test" timer="2000" id="a-progress-bar"></progress-bar>
-
-        <p>Ticks left {{ user.ticksLeft }}</p>
-
-        <p>You are currently {{ user.currentTask }}</p>
-
         <router-view/>
     </div>
 </template>
@@ -39,8 +29,6 @@
 
 <script>
 
-    import ProgressBar from '@/components/ProgressBar.vue';
-
     export default {
         data: function () {
             return {
@@ -48,9 +36,6 @@
                 user: {},
                 tickProgress: 100,
             }
-        },
-        components: {
-            ProgressBar
         },
         mounted: function () {
             window.$socket.on('tick update', (tick) => {
@@ -67,14 +52,6 @@
             window.$socket.on('update user', (u) => {
                 this.$set(this, 'user', u);
                 console.log('update user', u)
-            });
-
-            window.$socket.on('test', () => {
-              console.log('test');
-            })
-
-            window.$socket.on('sync tick animation', () => {
-                this.tickProgress = 100;
             });
         }
     }
