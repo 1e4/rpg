@@ -1,3 +1,5 @@
+const io = require('../socket');
+
 module.exports =  {
     name: 'woodcutting',
     trees: {
@@ -28,7 +30,9 @@ module.exports =  {
         this.job.result = {
             channel: `private user ${this.user.username}`,
             event: 'tick update',
-            data: this.user.ticksLeft
+            data: this.user.ticksLeft,
+            nextTick: 10,
+            user: this.user
         }
     }
 }

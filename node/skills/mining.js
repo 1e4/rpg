@@ -28,7 +28,8 @@ module.exports =  {
         this.job.result = {
             channel: `private user ${this.user.username}`,
             event: 'tick update',
-            data: this.user.ticksLeft
+            data: this.user.ticksLeft,
+            nextTick: 5,
         }
     }
 }
