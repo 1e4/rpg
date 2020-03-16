@@ -1,18 +1,54 @@
 <template>
-    <div class="resource">
-        A {{ resourceName }}
+    <div class="resource" :id="'resource-' + resourceName">
+        {{ resourceName }}
+
+        <div class="image"></div>
+
+        <progress-bar :id="'progress-' + resourceName" :resourceId="this.resource"></progress-bar>
+        <button v-on:click="toggleResource()">{{ buttonText }}</button>
     </div>
 </template>
 
 <script>
+    import Items from '../assets/itemlist';
+    import ProgressBar from "./ProgressBar";
+
     export default {
         name: 'Resource',
+        components: {ProgressBar},
         props: {
-            resource: String
+            resource: Number
+        },
+        data: function () {
+            return {
+                started: false
+            }
         },
         computed: {
             resourceName() {
-                return this.resource
+                return Items[this.resource].name;
+            },
+            buttonText() {
+                return this.started === true ? 'Stop' : 'Start';
+            }
+        },
+        methods: {
+            toggleResource: function () {
+                if (this.started)
+                    this.$socket.emit('stop task', this.resource)
+                else
+                    this.$socket.emit('start task', this.resource)
+            }
+        },
+        sockets: {
+            startProgressBar: function (data) {
+                this.started = false;
+                if (data.task === this.resource) {
+                    this.started = true;
+                }
+            },
+            'stop task': function() {
+                this.started = false;
             }
         }
     }
@@ -20,21 +56,11 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-    h3 {
-        margin: 40px 0 0;
-    }
+    .resource {
+        display: block;
 
-    ul {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    li {
-        display: inline-block;
-        margin: 0 10px;
-    }
-
-    a {
-        color: #42b983;
+        .image {
+            height: 90px;
+        }
     }
 </style>

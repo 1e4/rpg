@@ -1,9 +1,5 @@
 <template>
     <div id="play-screen">
-        <div id="bg">
-            <div class="blur"></div>
-            <div class="image"></div>
-        </div>
         <div id="game">
             <div class="col-sm-12 col-md-3">
 
@@ -12,6 +8,11 @@
             <div class="col-sm-12 col-md-9">
                 <router-view></router-view>
             </div>
+        </div>
+
+        <div id="bg">
+            <div class="blur"></div>
+            <div class="image"></div>
         </div>
     </div>
 </template>
@@ -45,6 +46,8 @@
         left: 0;
         top: 0;
         z-index: 20;
+        height: 100%;
+        width: 100%;
     }
 </style>
 <script>
@@ -52,6 +55,14 @@
 
     export default {
         name: 'Play',
-        components: {}
+        components: {},
+        sockets: {
+            connect: function() {
+                console.log('connecting');
+                this.$socket.emit('login', {
+                    username: 'Ian'
+                })
+            }
+        }
     }
 </script>

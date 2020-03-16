@@ -32,27 +32,12 @@
     export default {
         data: function () {
             return {
-                currentProgress: 0,
-                user: {},
-                tickProgress: 100,
             }
         },
         mounted: function () {
-            window.$socket.on('tick update', (tick) => {
-                this.user.ticksLeft = tick;
-                console.log('update tick', tick);
-                this.tickProgress = 100;
-            });
+        },
+        sockets: {
 
-            window.$socket.on('login', (u) => {
-                this.$set(this, 'user', u);
-                console.log('login', u)
-            });
-
-            window.$socket.on('update user', (u) => {
-                this.$set(this, 'user', u);
-                console.log('update user', u)
-            });
         }
     }
 </script>
