@@ -1,13 +1,15 @@
 <template>
-    <div>
-
+    <div :id="'progressbar-resource-'+resourceId">
+        {{ styles.transitionDuration }}
         <div class="progress-container" :id="id">
-            <div class="message" v-if="xp" :class="{'animate': animateMessage}">{{xp}}</div>
-            <div class="progress-bar" :class="{'animate': animateBar, 'no-animation': !animateBar}">
-                <div class="progress" :style="progressStyles"></div>
+            <div class="message animate" v-for="(xp, index) in messages" :key="index">{{xp}}</div>
+            <div class="progress-bar">
+                <div class="progress" :style="{
+                    width: getWidth(),
+                    transitionDuration: getDuration()
+                }"></div>
             </div>
         </div>
-        {{ animateBar }}
     </div>
 </template>
 
@@ -20,71 +22,52 @@
             id: String,
             resourceId: Number
         },
-        data: function() {
+        data: function () {
             return {
                 animateBar: false,
                 animateMessage: false,
                 xp: this.message,
-                width: 0,
-                progressStyles: {
-                    width: 0
-                }
+                styles: {
+                    width: null,
+                    transitionDuration: null,
+                },
+                messages: [],
+                progressBarTimer: null
             }
         },
         mounted() {
         },
         sockets: {
-            startProgressBar: function(data) {
-
-                this.stopAnimation();
-                this.progressStyles.width = 0;
-
-                if(data.task === this.resourceId) {
-                    this.startAnimation(data.timer);
+            startProgressBar: function (data) {
+                this.styles.width = 0;
+                clearInterval(this.progressBarTimer);
+                if (data.activeAction === this.resourceId) {
+                    this.progressBarTimer = setInterval(() => {
+                        this.styles.width++;
+                    }, data.timer / 100)
                 }
             },
-            showXp: function(data) {
-                if(data.task === this.resourceId)
-                {
-                    this.xp = `+${data.xp}xp`;
-                    this.animateMessage = true;
+            showXp: function (data) {
+                console.log('show xp', data);
+                if (data.activeAction === this.resourceId) {
+                    this.messages.push(`+${data.xp}xp`);
                     setTimeout(() => {
-                        this.animateMessage = false;
-                        this.xp = '';
-                    }, 1000);
+                        this.messages.shift()
+                    }, 900);
                 }
             },
-            'stop task': function() {
-                this.stopAnimation()
+            'stop task': function () {
+                clearInterval(this.progressBarTimer);
+                this.styles.width = 0;
             }
         },
         methods: {
-            startAnimation: function(timer) {
-                // this.progressStyles.animation = 'fillProgress';
-                this.progressStyles.animationDuration = timer / 1000 + 's';
-                this.progressStyles.animationIterationCount = 'infinite';
-                this.animateBar = true;
+            getDuration: function() {
+                return this.styles.transitionDuration + 's';
             },
-            stopAnimation: function() {
-                this.progressStyles.width = '0px';
-                this.animateBar = false;
-                this.animateMessage = false;
-                console.log('stopping')
-            },
-            rand: function (max) {
-              return Math.floor(Math.random() * Math.floor(max));
-            },
-            xpMessage: function () {
-                // let _self = this;
-                // this.xp = '+' + this.rand(10) + ' xp';
-                // this.animateMessage = true;
-                //
-                // this.animateBar = true;
-                //
-                // setTimeout(function () {
-                //     _self.animateBar = false;
-                //     _self.animateMessage = false;
-                // }, this.timer / 2);
+
+            getWidth: function() {
+                return this.styles.width + '%'
             }
         }
     }
@@ -97,15 +80,7 @@
         width: 100%;
         padding: 5px;
         background-color: black;
-
-
-        &.animate {
-            .progress {
-                display: block;
-                animation: fillProgress 5s infinite linear;
-                //opacity: 0;
-            }
-        }
+        max-width: 200px;
 
         .progress {
             height: 20px;
@@ -128,23 +103,10 @@
 
         &.animate {
             display: block;
-            animation: animateMessage infinite 1.5s;
+            animation: animateMessage 1s;
+            animation-iteration-count: infinite;
             opacity: 0;
             color: white;
-        }
-    }
-
-    .stop-animation {
-        animation: none;
-    }
-
-    @keyframes fillProgress {
-        0% {
-            width: 0;
-        }
-
-        100% {
-            width: 100%;
         }
     }
 

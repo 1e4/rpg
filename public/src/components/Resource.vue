@@ -1,5 +1,5 @@
 <template>
-    <div class="resource" :id="'resource-' + resourceName">
+    <div class="resource" :id="'resource-' + resourceIdName" :key="resource">
         {{ resourceName }}
 
         <div class="image"></div>
@@ -10,23 +10,30 @@
 </template>
 
 <script>
-    import Items from '../assets/itemlist';
     import ProgressBar from "./ProgressBar";
 
     export default {
         name: 'Resource',
         components: {ProgressBar},
         props: {
-            resource: Number
+            resource: Number,
+            skill: String
         },
         data: function () {
             return {
-                started: false
+                started: false,
+                item: {}
             }
         },
+        beforeMount() {
+            this.item = window.$config.woodcutting[this.resource]
+        },
         computed: {
+            resourceIdName() {
+                return this.item.name.toLowerCase();
+            },
             resourceName() {
-                return Items[this.resource].name;
+                return this.item.name;
             },
             buttonText() {
                 return this.started === true ? 'Stop' : 'Start';
@@ -35,17 +42,15 @@
         methods: {
             toggleResource: function () {
                 if (this.started)
-                    this.$socket.emit('stop task', this.resource)
+                    this.$socket.emit('stop task', [this.resource, this.skill])
                 else
-                    this.$socket.emit('start task', this.resource)
+                    this.$socket.emit('start task', [this.resource, this.skill])
             }
         },
         sockets: {
             startProgressBar: function (data) {
-                this.started = false;
-                if (data.task === this.resource) {
-                    this.started = true;
-                }
+
+                this.started = data.task === this.resource;
             },
             'stop task': function() {
                 this.started = false;
@@ -58,6 +63,7 @@
 <style scoped lang="scss">
     .resource {
         display: block;
+        width: 50%;
 
         .image {
             height: 90px;

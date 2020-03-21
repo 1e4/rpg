@@ -1,8 +1,9 @@
-const items = require('./config/itemlist');
 
 module.exports = class User {
 
     constructor(username, socket, redis, tasks) {
+
+        this.config = require('./config');
 
         this.timers = {};
 
@@ -15,6 +16,7 @@ module.exports = class User {
             password: '',
             email: null,
             activeAction: 0,
+            activeSkill: null,
             created_at: new Date(),
             inventory: {},
             levels: {
@@ -35,38 +37,39 @@ module.exports = class User {
     // Change the active task that the user is doing
     startTask(task) {
         this.stopTask();
-        this.data.activeAction = task;
+        this.data.activeAction = task[0];
+        this.data.activeSkill = task[1];
+        this.currentAction = this.config[task[1]][task[0]];
         this.save();
-        this.socket.emit('start task', task);
         this.executeTask();
     }
 
     executeTask() {
-        let task = this.data.activeAction;
+        let activeAction = this.data.activeAction;
+        let activeSkill = this.data.activeSkill;
 
-        if (!items[task] || !items[task].skill)
+        if(!this.config[activeSkill][activeAction])
             return;
 
-        let skill = items[task].skill;
+        let currentAction = this.config[activeSkill][activeAction];
 
         // Check if task exists
-        if (this.tasks.hasOwnProperty(skill)) {
+        if (this.tasks.hasOwnProperty(activeSkill)) {
             this.clearTimer('resource');
 
             let timer = this.getTaskTimer();
 
-            this.socket.emit('startProgressBar', {task, timer});
+            this.socket.emit('startProgressBar', {activeAction, timer});
 
-            this.timers['resource'] = setInterval(() => {
-                this.socket.emit('startProgressBar', {task, timer});
-                this.tasks[skill].execute(
-                    items[task],
+            this.timers['resource'] = setTimeout(() => {
+                this.tasks[activeSkill].execute(
+                    currentAction,
                     this.socket,
                     this.data
                 );
+                this.executeTask()
             }, timer)
         }
-
     }
 
     stopTask() {
@@ -79,18 +82,22 @@ module.exports = class User {
     clearTimer(timer) {
         for (const i in this.timers) {
             if (i === timer)
-                clearInterval(this.timers[i])
+                clearTimeout(this.timers[i])
         }
     }
 
     clearTimers() {
         for (const i in this.timers) {
-            clearInterval(this.timers[i])
+            clearTimeout(this.timers[i])
         }
     }
 
     getTaskTimer() {
-        return items[this.data.activeAction].time || 10;
+        console.log(this.config[this.data.activeSkill][this.data.activeAction]);
+        if(Math.random() >= 0.3)
+            return this.currentAction.time / 2 || 5;
+
+        return this.currentAction.time || 10;
     }
 
     async load() {
@@ -104,7 +111,7 @@ module.exports = class User {
 
             this.data = user;
             this.loaded = true;
-            this.executeTask();
+            this.startTask([user.activeAction, user.activeSkill]);
         });
     }
 

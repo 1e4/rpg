@@ -4,9 +4,10 @@ module.exports =  {
     name: 'woodcutting',
     execute: function(task, socket, data) {
 
+        console.log('running woodcutting task', task);
         socket.emit('showXp', {
-            task: task.id,
-            xp: task.experience
+            activeAction: data.activeAction,
+            xp: task.xp
         });
         this.process();
     },

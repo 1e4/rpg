@@ -37,7 +37,11 @@
         mounted: function () {
         },
         sockets: {
-
+            config: function(data) {
+                localStorage.setItem('config', JSON.stringify(data));
+                window.$config = data;
+                console.log('got config', data);
+            }
         }
     }
 </script>

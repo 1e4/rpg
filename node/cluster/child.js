@@ -4,6 +4,7 @@ const client = redis.createClient();
 const cors = require('cors');
 const fs = require('fs');
 const User = require('../User');
+const config = require('../config');
 
 let tasks = {};
 
@@ -60,37 +61,28 @@ io.on('connection', (socket) => {
             currentTask: user.data.activeAction
         });
 
-        // Sync config with localstorage
-        // This saves needing to get a file everytime
-        // We can also push updates live
-        // This also allows us to not send "hidden" items so they are hidden until the current user finds them, prevents leaking
-        // This will be pulled from the database
-        // @todo add time checking and database stuff
-        socket.emit('config', {
-            items: {},
-            resources: {}
-        });
+socket.emit('config', config);
 
-        // Send the signal to end the loading screen and now we're ready to play
-        socket.emit('ready to play');
+// Send the signal to end the loading screen and now we're ready to play
+socket.emit('ready to play');
     });
 
-    socket.on('start task', (task) => {
-        user.startTask(task);
-    });
+socket.on('start task', (task) => {
+    user.startTask(task);
+});
 
-    socket.on('stop task', () => {
-        user.stopTask();
-    });
+socket.on('stop task', () => {
+    user.stopTask();
+});
 
-    socket.on('disconnect', () => {
-        if(user instanceof User)
-        {
-            user.clearTimers();
-            delete usersOnline[id];
-            user = null;
-        }
-    });
+socket.on('disconnect', () => {
+    if(user instanceof User)
+    {
+        user.clearTimers();
+        delete usersOnline[id];
+        user = null;
+    }
+});
 
 });
 
